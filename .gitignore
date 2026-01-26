@@ -405,7 +405,6 @@ public/data-dictionary.xlsx
 public/index.html
 
 # npm
-package-lock.json
 
 # TypeScript build outputs
 dist/
