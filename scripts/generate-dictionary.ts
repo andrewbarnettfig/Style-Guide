@@ -751,9 +751,9 @@ async function generateDataDictionary(): Promise<void> {
   XLSX.writeFile(workbook, xlsxPath);
   console.log(`Generated: ${xlsxPath}`);
 
-  // Copy index.html to public if it exists in templates
-  const templateHtmlPath = path.join(__dirname, 'templates', 'index.html');
-  const publicHtmlPath = path.join(publicDir, 'index.html');
+  // Copy data-dictionary.html to public if it exists in templates
+  const templateHtmlPath = path.join(__dirname, 'templates', 'data-dictionary.html');
+  const publicHtmlPath = path.join(publicDir, 'data-dictionary.html');
 
   if (fs.existsSync(templateHtmlPath)) {
     fs.copyFileSync(templateHtmlPath, publicHtmlPath);

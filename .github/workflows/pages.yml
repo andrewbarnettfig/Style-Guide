@@ -40,13 +40,8 @@ jobs:
 
       - name: Copy existing docs to public
         run: |
-          # Copy all files from docs/ to public/ (except any that already exist in public/)
-          cp -rn docs/* public/ 2>/dev/null || true
-          # Make sure index.html from the generator takes precedence for data dictionary
-          # The original docs/index.html can be accessed via docs-index.html if needed
-          if [ -f docs/index.html ]; then
-            cp docs/index.html public/docs-index.html
-          fi
+          # Copy all files from docs/ to public/, letting docs/index.html be the main landing page
+          cp -r docs/* public/
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
