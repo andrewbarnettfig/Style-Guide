@@ -775,28 +775,27 @@ function generateHtml(outputPath: string, title: string, version: string): void 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Data Dictionary - ${title}</title>
   <link href="https://unpkg.com/tabulator-tables@5.5.0/dist/css/tabulator.min.css" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg-dark: #0a0a0f;
-      --bg-card: #12121a;
-      --bg-elevated: #1a1a25;
-      --bg-hover: #222230;
-      --border-subtle: rgba(255, 255, 255, 0.06);
-      --border-glow: rgba(139, 92, 246, 0.3);
-      --text-primary: #f0f0f5;
-      --text-secondary: #a0a0b0;
-      --text-muted: #606070;
-      --accent-purple: #8b5cf6;
-      --accent-cyan: #06d6d6;
-      --accent-pink: #ec4899;
-      --accent-lime: #84cc16;
-      --gradient-main: linear-gradient(135deg, #8b5cf6 0%, #06d6d6 50%, #ec4899 100%);
-      --gradient-btn: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%);
-      --glow-purple: 0 0 30px rgba(139, 92, 246, 0.4);
-      --glow-cyan: 0 0 30px rgba(6, 214, 214, 0.4);
-      --radius: 16px;
-      --radius-sm: 10px;
+      --navy: #001a3e;
+      --navy-dark: #05244c;
+      --blue-accent: #1485e0;
+      --blue-light: #e8f4fc;
+      --cyan: #00d084;
+      --white: #ffffff;
+      --gray-50: #f8fafc;
+      --gray-100: #f1f6fa;
+      --gray-200: #e2e8f0;
+      --gray-300: #D2E2EF;
+      --gray-500: #757575;
+      --gray-600: #405368;
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 24px;
+      --radius-full: 9999px;
+      --shadow: 0 4px 6px -1px rgba(0, 26, 62, 0.1), 0 2px 4px -2px rgba(0, 26, 62, 0.1);
+      --shadow-lg: 0 20px 40px -12px rgba(0, 26, 62, 0.15);
     }
 
     * {
@@ -806,43 +805,25 @@ function generateHtml(outputPath: string, title: string, version: string): void 
     }
 
     body {
-      font-family: 'Space Grotesk', -apple-system, sans-serif;
-      background: var(--bg-dark);
-      color: var(--text-primary);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--gray-100);
+      color: var(--gray-600);
       min-height: 100vh;
-      position: relative;
-      overflow-x: hidden;
-    }
-
-    /* Animated background */
-    body::before {
-      content: '';
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background:
-        radial-gradient(ellipse 80% 50% at 20% -20%, rgba(139, 92, 246, 0.15) 0%, transparent 50%),
-        radial-gradient(ellipse 60% 40% at 80% 0%, rgba(6, 214, 214, 0.12) 0%, transparent 50%),
-        radial-gradient(ellipse 50% 30% at 10% 100%, rgba(236, 72, 153, 0.1) 0%, transparent 50%);
-      pointer-events: none;
-      z-index: 0;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
     }
 
     .page-wrapper {
-      position: relative;
-      z-index: 1;
       padding: 40px;
       max-width: 100%;
     }
 
     /* Header */
     header {
-      background: var(--bg-card);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius) var(--radius) 0 0;
-      padding: 48px 48px 40px;
+      background: var(--navy);
+      color: var(--white);
+      padding: 48px;
+      border-radius: var(--radius-lg) var(--radius-lg) 0 0;
       position: relative;
       overflow: hidden;
     }
@@ -851,45 +832,29 @@ function generateHtml(outputPath: string, title: string, version: string): void 
       content: '';
       position: absolute;
       top: 0;
-      left: 0;
       right: 0;
-      height: 4px;
-      background: var(--gradient-main);
-    }
-
-    header::after {
-      content: '';
-      position: absolute;
-      top: -150px;
-      right: -100px;
-      width: 400px;
-      height: 400px;
-      background: radial-gradient(circle, rgba(139, 92, 246, 0.08) 0%, transparent 70%);
+      width: 50%;
+      height: 100%;
+      background: linear-gradient(135deg, transparent 0%, rgba(20, 133, 224, 0.1) 100%);
       pointer-events: none;
     }
 
     .header-content {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      flex-wrap: wrap;
-      gap: 24px;
+      position: relative;
+      z-index: 1;
     }
 
     .header-text h1 {
-      font-size: 2.5rem;
+      font-size: 2.25rem;
       font-weight: 700;
-      letter-spacing: -0.03em;
-      margin-bottom: 16px;
-      background: var(--gradient-main);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
+      letter-spacing: -0.02em;
+      margin-bottom: 20px;
+      color: var(--white);
     }
 
     .meta {
       display: flex;
-      gap: 32px;
+      gap: 24px;
       flex-wrap: wrap;
     }
 
@@ -897,51 +862,43 @@ function generateHtml(outputPath: string, title: string, version: string): void 
       display: flex;
       align-items: center;
       gap: 12px;
-      padding: 12px 20px;
-      background: var(--bg-elevated);
-      border-radius: var(--radius-sm);
-      border: 1px solid var(--border-subtle);
+      padding: 14px 20px;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border-radius: var(--radius-md);
+      border: 1px solid rgba(255, 255, 255, 0.15);
     }
 
     .meta-item .icon {
-      width: 36px;
-      height: 36px;
-      border-radius: 10px;
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius-sm);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.1rem;
-    }
-
-    .meta-item:first-child .icon {
-      background: linear-gradient(135deg, rgba(139, 92, 246, 0.2) 0%, rgba(139, 92, 246, 0.05) 100%);
-      color: var(--accent-purple);
-    }
-
-    .meta-item:last-child .icon {
-      background: linear-gradient(135deg, rgba(6, 214, 214, 0.2) 0%, rgba(6, 214, 214, 0.05) 100%);
-      color: var(--accent-cyan);
+      font-size: 1.25rem;
+      background: rgba(20, 133, 224, 0.3);
     }
 
     .meta-item .label {
       font-size: 0.75rem;
       text-transform: uppercase;
-      letter-spacing: 0.1em;
-      color: var(--text-muted);
+      letter-spacing: 0.08em;
+      color: rgba(255, 255, 255, 0.7);
       margin-bottom: 2px;
     }
 
     .meta-item .value {
       font-weight: 600;
-      color: var(--text-primary);
+      color: var(--white);
+      font-size: 0.95rem;
     }
 
     /* Main card */
     .main-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border-subtle);
-      border-top: none;
-      border-radius: 0 0 var(--radius) var(--radius);
+      background: var(--white);
+      border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+      box-shadow: var(--shadow-lg);
       overflow: hidden;
     }
 
@@ -949,34 +906,33 @@ function generateHtml(outputPath: string, title: string, version: string): void 
     .tab-navigation {
       display: flex;
       gap: 8px;
-      padding: 24px 32px;
-      background: var(--bg-elevated);
-      border-bottom: 1px solid var(--border-subtle);
+      padding: 20px 32px;
+      background: var(--gray-50);
+      border-bottom: 1px solid var(--gray-200);
     }
 
     .tab-btn {
-      padding: 14px 28px;
+      padding: 12px 24px;
       border: none;
       background: transparent;
-      color: var(--text-secondary);
+      color: var(--gray-500);
       font-family: inherit;
       font-size: 0.9rem;
       font-weight: 600;
       cursor: pointer;
-      border-radius: var(--radius-sm);
+      border-radius: var(--radius-full);
       transition: all 0.2s ease;
-      position: relative;
     }
 
     .tab-btn:hover {
-      color: var(--text-primary);
-      background: var(--bg-hover);
+      color: var(--navy-dark);
+      background: var(--gray-200);
     }
 
     .tab-btn.active {
-      color: white;
-      background: var(--gradient-btn);
-      box-shadow: var(--glow-purple), 0 4px 15px rgba(139, 92, 246, 0.3);
+      color: var(--white);
+      background: var(--blue-accent);
+      box-shadow: 0 4px 12px rgba(20, 133, 224, 0.3);
     }
 
     /* Controls */
@@ -986,42 +942,37 @@ function generateHtml(outputPath: string, title: string, version: string): void 
       flex-wrap: wrap;
       gap: 16px;
       align-items: center;
-      background: var(--bg-card);
-      border-bottom: 1px solid var(--border-subtle);
+      background: var(--white);
+      border-bottom: 1px solid var(--gray-200);
     }
 
     .search-wrapper {
       position: relative;
       flex: 1;
-      min-width: 300px;
-      max-width: 450px;
+      min-width: 280px;
+      max-width: 400px;
     }
 
     .search-wrapper::before {
       content: '';
       position: absolute;
-      left: 18px;
+      left: 16px;
       top: 50%;
       transform: translateY(-50%);
       width: 20px;
       height: 20px;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23606070'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z'/%3E%3C/svg%3E");
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23757575'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z'/%3E%3C/svg%3E");
       background-size: contain;
       pointer-events: none;
-      transition: all 0.2s ease;
-    }
-
-    .search-wrapper:focus-within::before {
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%238b5cf6'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z'/%3E%3C/svg%3E");
     }
 
     .controls input[type="text"] {
       width: 100%;
-      padding: 14px 20px 14px 52px;
-      background: var(--bg-elevated);
-      border: 2px solid var(--border-subtle);
-      border-radius: var(--radius-sm);
-      color: var(--text-primary);
+      padding: 14px 20px 14px 48px;
+      background: var(--gray-50);
+      border: 2px solid var(--gray-200);
+      border-radius: var(--radius-full);
+      color: var(--navy-dark);
       font-family: inherit;
       font-size: 0.95rem;
       transition: all 0.2s ease;
@@ -1029,63 +980,64 @@ function generateHtml(outputPath: string, title: string, version: string): void 
 
     .controls input[type="text"]:focus {
       outline: none;
-      border-color: var(--accent-purple);
-      box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.15), var(--glow-purple);
+      border-color: var(--blue-accent);
+      background: var(--white);
+      box-shadow: 0 0 0 4px rgba(20, 133, 224, 0.1);
     }
 
     .controls input[type="text"]::placeholder {
-      color: var(--text-muted);
+      color: var(--gray-500);
     }
 
     .controls select {
       padding: 14px 44px 14px 18px;
-      background: var(--bg-elevated) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23606070'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E") no-repeat right 14px center;
+      background: var(--gray-50) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23757575'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E") no-repeat right 14px center;
       background-size: 18px;
-      border: 2px solid var(--border-subtle);
-      border-radius: var(--radius-sm);
-      color: var(--text-primary);
+      border: 2px solid var(--gray-200);
+      border-radius: var(--radius-full);
+      color: var(--navy-dark);
       font-family: inherit;
       font-size: 0.9rem;
       font-weight: 500;
       cursor: pointer;
-      min-width: 170px;
+      min-width: 160px;
       appearance: none;
       transition: all 0.2s ease;
     }
 
     .controls select:focus {
       outline: none;
-      border-color: var(--accent-cyan);
-      box-shadow: 0 0 0 4px rgba(6, 214, 214, 0.15);
+      border-color: var(--blue-accent);
+      background-color: var(--white);
+      box-shadow: 0 0 0 4px rgba(20, 133, 224, 0.1);
     }
 
     .controls select:hover {
-      border-color: var(--text-muted);
+      border-color: var(--gray-300);
     }
 
     .download-btn {
-      background: var(--gradient-btn);
-      color: white;
+      background: var(--blue-accent);
+      color: var(--white);
       border: none;
       padding: 14px 28px;
-      border-radius: var(--radius-sm);
+      border-radius: var(--radius-full);
       cursor: pointer;
       font-family: inherit;
       font-size: 0.9rem;
-      font-weight: 700;
+      font-weight: 600;
       text-decoration: none;
       display: inline-flex;
       align-items: center;
       gap: 10px;
       transition: all 0.2s ease;
       margin-left: auto;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
     }
 
     .download-btn:hover {
+      background: var(--navy);
       transform: translateY(-2px);
-      box-shadow: var(--glow-purple), 0 8px 25px rgba(139, 92, 246, 0.4);
+      box-shadow: 0 8px 20px rgba(0, 26, 62, 0.2);
     }
 
     .download-btn:active {
@@ -1094,8 +1046,8 @@ function generateHtml(outputPath: string, title: string, version: string): void 
 
     .download-btn::before {
       content: '';
-      width: 20px;
-      height: 20px;
+      width: 18px;
+      height: 18px;
       background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='white' stroke-width='2.5'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4'/%3E%3C/svg%3E");
       background-size: contain;
     }
@@ -1103,55 +1055,54 @@ function generateHtml(outputPath: string, title: string, version: string): void 
     /* Stats bar */
     .stats {
       padding: 16px 32px;
-      background: linear-gradient(90deg, rgba(139, 92, 246, 0.08) 0%, rgba(6, 214, 214, 0.08) 100%);
-      border-bottom: 1px solid var(--border-subtle);
+      background: var(--blue-light);
+      border-bottom: 1px solid var(--gray-300);
       font-size: 0.875rem;
       font-weight: 600;
-      color: var(--text-secondary);
+      color: var(--navy-dark);
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
     }
 
     .stats::before {
       content: '';
-      width: 10px;
-      height: 10px;
-      background: var(--accent-lime);
+      width: 8px;
+      height: 8px;
+      background: var(--cyan);
       border-radius: 50%;
-      box-shadow: 0 0 12px var(--accent-lime);
-      animation: glow-pulse 2s ease-in-out infinite;
+      animation: pulse 2s ease-in-out infinite;
     }
 
-    @keyframes glow-pulse {
-      0%, 100% { opacity: 1; box-shadow: 0 0 12px var(--accent-lime); }
-      50% { opacity: 0.6; box-shadow: 0 0 6px var(--accent-lime); }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
     }
 
     /* Table container */
     .table-container {
-      background: var(--bg-card);
+      background: var(--white);
     }
 
     #data-table {
       font-size: 0.85rem;
     }
 
-    /* Tabulator Dark Theme Override */
+    /* Tabulator Theme Override */
     .tabulator {
-      background: var(--bg-card);
+      background: var(--white);
       border: none;
-      font-family: 'Space Grotesk', sans-serif;
+      font-family: 'Inter', sans-serif;
     }
 
     .tabulator .tabulator-header {
-      background: var(--bg-elevated);
-      border-bottom: 2px solid var(--border-subtle);
+      background: var(--gray-50);
+      border-bottom: 2px solid var(--gray-200);
     }
 
     .tabulator .tabulator-header .tabulator-col {
       background: transparent;
-      border-right: 1px solid var(--border-subtle);
+      border-right: 1px solid var(--gray-200);
     }
 
     .tabulator .tabulator-header .tabulator-col:last-child {
@@ -1159,55 +1110,53 @@ function generateHtml(outputPath: string, title: string, version: string): void 
     }
 
     .tabulator .tabulator-header .tabulator-col .tabulator-col-content {
-      padding: 18px 16px;
+      padding: 16px;
     }
 
     .tabulator .tabulator-header .tabulator-col .tabulator-col-title {
       font-weight: 700;
-      color: var(--text-primary);
+      color: var(--navy-dark);
       font-size: 0.7rem;
       text-transform: uppercase;
-      letter-spacing: 0.1em;
+      letter-spacing: 0.08em;
     }
 
     .tabulator .tabulator-tableholder .tabulator-table {
-      background: var(--bg-card);
-      color: var(--text-secondary);
+      background: var(--white);
+      color: var(--gray-600);
     }
 
     .tabulator-row {
-      background: var(--bg-card) !important;
-      border-bottom: 1px solid var(--border-subtle);
+      background: var(--white) !important;
+      border-bottom: 1px solid var(--gray-200);
       transition: all 0.15s ease;
     }
 
     .tabulator-row:hover {
-      background: var(--bg-hover) !important;
+      background: var(--blue-light) !important;
     }
 
     .tabulator-row.tabulator-row-even {
-      background: rgba(255, 255, 255, 0.01) !important;
+      background: var(--gray-50) !important;
     }
 
     .tabulator-row .tabulator-cell {
-      padding: 16px;
+      padding: 14px 16px;
       border-right: none;
-      color: var(--text-secondary);
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.8rem;
+      color: var(--gray-600);
     }
 
     .tabulator .tabulator-footer {
-      background: var(--bg-elevated);
-      border-top: 2px solid var(--border-subtle);
+      background: var(--gray-50);
+      border-top: 2px solid var(--gray-200);
       padding: 16px 20px;
     }
 
     .tabulator .tabulator-footer .tabulator-page {
-      background: var(--bg-card);
-      border: 2px solid var(--border-subtle);
-      border-radius: 8px;
-      color: var(--text-secondary);
+      background: var(--white);
+      border: 2px solid var(--gray-200);
+      border-radius: var(--radius-sm);
+      color: var(--gray-600);
       padding: 8px 14px;
       margin: 0 4px;
       font-weight: 600;
@@ -1216,55 +1165,53 @@ function generateHtml(outputPath: string, title: string, version: string): void 
     }
 
     .tabulator .tabulator-footer .tabulator-page:hover {
-      border-color: var(--accent-purple);
-      color: var(--accent-purple);
+      border-color: var(--blue-accent);
+      color: var(--blue-accent);
     }
 
     .tabulator .tabulator-footer .tabulator-page.active {
-      background: var(--gradient-btn);
-      border-color: transparent;
-      color: white;
-      box-shadow: var(--glow-purple);
+      background: var(--blue-accent);
+      border-color: var(--blue-accent);
+      color: var(--white);
     }
 
     .tabulator .tabulator-header .tabulator-col .tabulator-header-filter input {
-      background: var(--bg-card);
-      border: 2px solid var(--border-subtle);
-      border-radius: 6px;
+      background: var(--white);
+      border: 2px solid var(--gray-200);
+      border-radius: var(--radius-sm);
       padding: 8px 12px;
       font-size: 0.75rem;
-      font-family: 'JetBrains Mono', monospace;
-      color: var(--text-primary);
+      font-family: inherit;
+      color: var(--navy-dark);
       transition: all 0.15s ease;
     }
 
     .tabulator .tabulator-header .tabulator-col .tabulator-header-filter input:focus {
       outline: none;
-      border-color: var(--accent-cyan);
-      box-shadow: 0 0 0 3px rgba(6, 214, 214, 0.15);
+      border-color: var(--blue-accent);
+      box-shadow: 0 0 0 3px rgba(20, 133, 224, 0.1);
     }
 
     .tabulator .tabulator-footer .tabulator-paginator {
-      color: var(--text-secondary);
+      color: var(--gray-600);
       font-family: inherit;
     }
 
     /* Loading state */
     .loading {
       text-align: center;
-      padding: 100px 40px;
-      color: var(--text-muted);
+      padding: 80px 40px;
+      color: var(--gray-500);
     }
 
     .loading::before {
       content: '';
       display: block;
-      width: 50px;
-      height: 50px;
-      margin: 0 auto 24px;
-      border: 3px solid var(--border-subtle);
-      border-top-color: var(--accent-purple);
-      border-right-color: var(--accent-cyan);
+      width: 48px;
+      height: 48px;
+      margin: 0 auto 20px;
+      border: 4px solid var(--gray-200);
+      border-top-color: var(--blue-accent);
       border-radius: 50%;
       animation: spin 0.8s linear infinite;
     }
@@ -1275,12 +1222,12 @@ function generateHtml(outputPath: string, title: string, version: string): void 
 
     /* Error state */
     .error {
-      background: linear-gradient(135deg, rgba(236, 72, 153, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
-      color: var(--accent-pink);
-      padding: 32px;
-      border-radius: var(--radius-sm);
-      margin: 32px;
-      border: 2px solid rgba(236, 72, 153, 0.3);
+      background: #fef2f2;
+      color: #dc2626;
+      padding: 24px;
+      border-radius: var(--radius-md);
+      margin: 24px;
+      border: 2px solid #fecaca;
       font-weight: 600;
     }
 
@@ -1295,7 +1242,7 @@ function generateHtml(outputPath: string, title: string, version: string): void 
       }
 
       .header-text h1 {
-        font-size: 2rem;
+        font-size: 1.75rem;
       }
 
       .controls {
@@ -1303,7 +1250,7 @@ function generateHtml(outputPath: string, title: string, version: string): void 
       }
 
       .tab-navigation {
-        padding: 20px 24px;
+        padding: 16px 24px;
         overflow-x: auto;
       }
     }
@@ -1315,6 +1262,7 @@ function generateHtml(outputPath: string, title: string, version: string): void 
 
       header {
         padding: 24px;
+        border-radius: var(--radius-md) var(--radius-md) 0 0;
       }
 
       .header-text h1 {
@@ -1324,6 +1272,10 @@ function generateHtml(outputPath: string, title: string, version: string): void 
       .meta {
         flex-direction: column;
         gap: 12px;
+      }
+
+      .main-card {
+        border-radius: 0 0 var(--radius-md) var(--radius-md);
       }
 
       .search-wrapper {
@@ -1343,8 +1295,8 @@ function generateHtml(outputPath: string, title: string, version: string): void 
       }
 
       .tab-btn {
-        padding: 12px 20px;
-        font-size: 0.8rem;
+        padding: 10px 18px;
+        font-size: 0.85rem;
       }
     }
   </style>
@@ -1357,14 +1309,14 @@ function generateHtml(outputPath: string, title: string, version: string): void 
           <h1>API Data Dictionary</h1>
           <div class="meta">
             <div class="meta-item">
-              <div class="icon">&#9883;</div>
+              <div class="icon">&#128203;</div>
               <div>
                 <div class="label">API</div>
                 <div class="value" id="api-info">Loading...</div>
               </div>
             </div>
             <div class="meta-item">
-              <div class="icon">&#9202;</div>
+              <div class="icon">&#128337;</div>
               <div>
                 <div class="label">Generated</div>
                 <div class="value" id="generated-at">—</div>
@@ -1405,7 +1357,7 @@ function generateHtml(outputPath: string, title: string, version: string): void 
         <select id="filter-status">
           <option value="">All Status Codes</option>
         </select>
-        <a href="./data-dictionary.xlsx" class="download-btn" download>Download</a>
+        <a href="./data-dictionary.xlsx" class="download-btn" download>Download Excel</a>
       </div>
 
       <div class="stats" id="stats">Loading data...</div>
