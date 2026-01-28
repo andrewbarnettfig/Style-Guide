@@ -775,123 +775,467 @@ function generateHtml(outputPath: string, title: string, version: string): void 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Data Dictionary - ${title}</title>
   <link href="https://unpkg.com/tabulator-tables@5.5.0/dist/css/tabulator.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
+    :root {
+      --primary: #4f46e5;
+      --primary-dark: #4338ca;
+      --primary-light: #818cf8;
+      --accent: #06b6d4;
+      --success: #10b981;
+      --surface: #ffffff;
+      --surface-elevated: #ffffff;
+      --background: #f8fafc;
+      --background-secondary: #f1f5f9;
+      --text-primary: #0f172a;
+      --text-secondary: #475569;
+      --text-muted: #94a3b8;
+      --border: #e2e8f0;
+      --border-light: #f1f5f9;
+      --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+      --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.07), 0 2px 4px -2px rgb(0 0 0 / 0.07);
+      --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.08), 0 4px 6px -4px rgb(0 0 0 / 0.08);
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 16px;
+      --transition: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
     * {
       box-sizing: border-box;
     }
+
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       margin: 0;
-      padding: 20px;
-      background: #f5f5f5;
+      padding: 32px;
+      background: var(--background);
+      color: var(--text-primary);
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
     }
+
     .container {
       max-width: 100%;
       margin: 0 auto;
     }
+
     header {
-      background: #1a365d;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
       color: white;
-      padding: 20px;
-      border-radius: 8px 8px 0 0;
-      margin-bottom: 0;
-    }
-    header h1 {
-      margin: 0 0 10px 0;
-      font-size: 1.5rem;
-    }
-    .meta {
-      display: flex;
-      gap: 20px;
-      font-size: 0.9rem;
-      opacity: 0.9;
-    }
-    .controls {
-      background: white;
-      padding: 15px 20px;
-      border-bottom: 1px solid #e2e8f0;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 15px;
-      align-items: center;
-    }
-    .controls input, .controls select {
-      padding: 8px 12px;
-      border: 1px solid #cbd5e0;
-      border-radius: 4px;
-      font-size: 0.9rem;
-    }
-    .controls input[type="text"] {
-      min-width: 250px;
-    }
-    .controls select {
-      min-width: 150px;
-    }
-    .download-btn {
-      background: #2d7d46;
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 0.9rem;
-      text-decoration: none;
-      display: inline-block;
-    }
-    .download-btn:hover {
-      background: #236b38;
-    }
-    .table-container {
-      background: white;
-      border-radius: 0 0 8px 8px;
+      padding: 32px 40px;
+      border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+      position: relative;
       overflow: hidden;
     }
-    #data-table {
-      font-size: 0.85rem;
+
+    header::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 400px;
+      height: 100%;
+      background: linear-gradient(135deg, transparent 0%, rgba(255,255,255,0.08) 100%);
+      pointer-events: none;
     }
-    .tabulator .tabulator-header {
-      background: #f7fafc;
+
+    header h1 {
+      margin: 0 0 8px 0;
+      font-size: 1.75rem;
+      font-weight: 700;
+      letter-spacing: -0.025em;
     }
-    .tabulator .tabulator-header .tabulator-col {
-      background: #f7fafc;
+
+    .meta {
+      display: flex;
+      gap: 24px;
+      font-size: 0.875rem;
+      opacity: 0.9;
+      font-weight: 500;
     }
+
+    .meta span {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .meta span::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      background: var(--accent);
+      border-radius: 50%;
+    }
+
+    .card {
+      background: var(--surface);
+      border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+      box-shadow: var(--shadow-lg);
+      overflow: hidden;
+    }
+
     .tab-navigation {
       display: flex;
-      gap: 5px;
-      margin-bottom: 0;
-      background: white;
-      padding: 10px 20px 0;
+      gap: 4px;
+      padding: 20px 24px 0;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border-light);
     }
+
     .tab-btn {
-      padding: 10px 20px;
+      padding: 12px 24px;
       border: none;
-      background: #e2e8f0;
+      background: transparent;
       cursor: pointer;
-      border-radius: 4px 4px 0 0;
-      font-size: 0.9rem;
+      border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      transition: all var(--transition);
+      position: relative;
     }
+
+    .tab-btn:hover {
+      color: var(--primary);
+      background: var(--background-secondary);
+    }
+
     .tab-btn.active {
-      background: #1a365d;
+      color: var(--primary);
+      background: var(--background);
+    }
+
+    .tab-btn.active::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: var(--primary);
+      border-radius: 3px 3px 0 0;
+    }
+
+    .controls {
+      background: var(--background);
+      padding: 20px 24px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .search-wrapper {
+      position: relative;
+      flex: 1;
+      min-width: 280px;
+      max-width: 400px;
+    }
+
+    .search-wrapper::before {
+      content: '';
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 18px;
+      height: 18px;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394a3b8'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z'/%3E%3C/svg%3E");
+      background-size: contain;
+      pointer-events: none;
+    }
+
+    .controls input[type="text"] {
+      width: 100%;
+      padding: 10px 14px 10px 44px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      font-size: 0.875rem;
+      font-family: inherit;
+      background: var(--surface);
+      color: var(--text-primary);
+      transition: all var(--transition);
+    }
+
+    .controls input[type="text"]:focus {
+      outline: none;
+      border-color: var(--primary-light);
+      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+    }
+
+    .controls input[type="text"]::placeholder {
+      color: var(--text-muted);
+    }
+
+    .controls select {
+      padding: 10px 36px 10px 14px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      font-size: 0.875rem;
+      font-family: inherit;
+      background: var(--surface) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394a3b8'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E") no-repeat right 10px center;
+      background-size: 18px;
+      color: var(--text-primary);
+      cursor: pointer;
+      min-width: 160px;
+      appearance: none;
+      transition: all var(--transition);
+    }
+
+    .controls select:focus {
+      outline: none;
+      border-color: var(--primary-light);
+      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+    }
+
+    .controls select:hover {
+      border-color: var(--text-muted);
+    }
+
+    .download-btn {
+      background: linear-gradient(135deg, var(--success) 0%, #059669 100%);
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      font-size: 0.875rem;
+      font-weight: 600;
+      font-family: inherit;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all var(--transition);
+      box-shadow: var(--shadow-sm);
+      margin-left: auto;
+    }
+
+    .download-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .download-btn:active {
+      transform: translateY(0);
+    }
+
+    .download-btn::before {
+      content: '';
+      width: 18px;
+      height: 18px;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='white'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4'/%3E%3C/svg%3E");
+      background-size: contain;
+    }
+
+    .stats {
+      padding: 14px 24px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      font-size: 0.8125rem;
+      color: var(--text-secondary);
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .stats::before {
+      content: '';
+      width: 8px;
+      height: 8px;
+      background: var(--accent);
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .table-container {
+      background: var(--surface);
+      overflow: hidden;
+    }
+
+    #data-table {
+      font-size: 0.8125rem;
+      border: none;
+    }
+
+    /* Tabulator Overrides */
+    .tabulator {
+      border: none;
+      background: var(--surface);
+    }
+
+    .tabulator .tabulator-header {
+      background: var(--background-secondary);
+      border-bottom: 2px solid var(--border);
+    }
+
+    .tabulator .tabulator-header .tabulator-col {
+      background: transparent;
+      border-right: 1px solid var(--border);
+    }
+
+    .tabulator .tabulator-header .tabulator-col:last-child {
+      border-right: none;
+    }
+
+    .tabulator .tabulator-header .tabulator-col .tabulator-col-content {
+      padding: 14px 16px;
+    }
+
+    .tabulator .tabulator-header .tabulator-col .tabulator-col-title {
+      font-weight: 600;
+      color: var(--text-primary);
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .tabulator .tabulator-tableholder .tabulator-table {
+      background: var(--surface);
+    }
+
+    .tabulator-row {
+      border-bottom: 1px solid var(--border-light);
+      transition: background var(--transition);
+    }
+
+    .tabulator-row:hover {
+      background: var(--background) !important;
+    }
+
+    .tabulator-row .tabulator-cell {
+      padding: 12px 16px;
+      border-right: none;
+      color: var(--text-secondary);
+    }
+
+    .tabulator-row.tabulator-row-even {
+      background: var(--surface);
+    }
+
+    .tabulator .tabulator-footer {
+      background: var(--background-secondary);
+      border-top: 2px solid var(--border);
+      padding: 12px 16px;
+    }
+
+    .tabulator .tabulator-footer .tabulator-page {
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: var(--surface);
+      color: var(--text-secondary);
+      padding: 6px 12px;
+      margin: 0 2px;
+      font-weight: 500;
+      transition: all var(--transition);
+    }
+
+    .tabulator .tabulator-footer .tabulator-page:hover {
+      border-color: var(--primary-light);
+      color: var(--primary);
+    }
+
+    .tabulator .tabulator-footer .tabulator-page.active {
+      background: var(--primary);
+      border-color: var(--primary);
       color: white;
     }
-    .stats {
-      padding: 10px 20px;
-      background: #f7fafc;
-      border-bottom: 1px solid #e2e8f0;
-      font-size: 0.85rem;
-      color: #4a5568;
+
+    .tabulator .tabulator-header .tabulator-col .tabulator-header-filter input {
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 6px 10px;
+      font-size: 0.75rem;
+      font-family: inherit;
+      background: var(--surface);
+      transition: all var(--transition);
     }
+
+    .tabulator .tabulator-header .tabulator-col .tabulator-header-filter input:focus {
+      outline: none;
+      border-color: var(--primary-light);
+      box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.1);
+    }
+
     .loading {
       text-align: center;
-      padding: 50px;
-      color: #718096;
+      padding: 80px 40px;
+      color: var(--text-muted);
     }
+
+    .loading::before {
+      content: '';
+      display: block;
+      width: 40px;
+      height: 40px;
+      margin: 0 auto 16px;
+      border: 3px solid var(--border);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
     .error {
-      background: #fed7d7;
-      color: #c53030;
-      padding: 20px;
-      border-radius: 4px;
-      margin: 20px;
+      background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+      color: #b91c1c;
+      padding: 24px;
+      border-radius: var(--radius-md);
+      margin: 24px;
+      border: 1px solid #fecaca;
+      font-weight: 500;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      body {
+        padding: 16px;
+      }
+
+      header {
+        padding: 24px;
+      }
+
+      header h1 {
+        font-size: 1.375rem;
+      }
+
+      .meta {
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .controls {
+        padding: 16px;
+      }
+
+      .search-wrapper {
+        min-width: 100%;
+        max-width: 100%;
+      }
+
+      .controls select {
+        flex: 1;
+        min-width: 0;
+      }
+
+      .download-btn {
+        width: 100%;
+        justify-content: center;
+        margin-left: 0;
+      }
     }
   </style>
 </head>
@@ -905,40 +1249,44 @@ function generateHtml(outputPath: string, title: string, version: string): void 
       </div>
     </header>
 
-    <div class="tab-navigation">
-      <button class="tab-btn active" data-tab="fields">Field Instances</button>
-      <button class="tab-btn" data-tab="endpoints">Endpoints</button>
-      <button class="tab-btn" data-tab="schemas">Schemas</button>
-    </div>
+    <div class="card">
+      <div class="tab-navigation">
+        <button class="tab-btn active" data-tab="fields">Field Instances</button>
+        <button class="tab-btn" data-tab="endpoints">Endpoints</button>
+        <button class="tab-btn" data-tab="schemas">Schemas</button>
+      </div>
 
-    <div class="controls">
-      <input type="text" id="search" placeholder="Search all columns...">
-      <select id="filter-method">
-        <option value="">All Methods</option>
-        <option value="GET">GET</option>
-        <option value="POST">POST</option>
-        <option value="PUT">PUT</option>
-        <option value="PATCH">PATCH</option>
-        <option value="DELETE">DELETE</option>
-      </select>
-      <select id="filter-location">
-        <option value="">All Locations</option>
-        <option value="path_param">Path Parameter</option>
-        <option value="query_param">Query Parameter</option>
-        <option value="header_param">Header Parameter</option>
-        <option value="request_body">Request Body</option>
-        <option value="response_body">Response Body</option>
-      </select>
-      <select id="filter-status">
-        <option value="">All Status Codes</option>
-      </select>
-      <a href="./data-dictionary.xlsx" class="download-btn" download>Download Excel</a>
-    </div>
+      <div class="controls">
+        <div class="search-wrapper">
+          <input type="text" id="search" placeholder="Search all columns...">
+        </div>
+        <select id="filter-method">
+          <option value="">All Methods</option>
+          <option value="GET">GET</option>
+          <option value="POST">POST</option>
+          <option value="PUT">PUT</option>
+          <option value="PATCH">PATCH</option>
+          <option value="DELETE">DELETE</option>
+        </select>
+        <select id="filter-location">
+          <option value="">All Locations</option>
+          <option value="path_param">Path Parameter</option>
+          <option value="query_param">Query Parameter</option>
+          <option value="header_param">Header Parameter</option>
+          <option value="request_body">Request Body</option>
+          <option value="response_body">Response Body</option>
+        </select>
+        <select id="filter-status">
+          <option value="">All Status Codes</option>
+        </select>
+        <a href="./data-dictionary.xlsx" class="download-btn" download>Download Excel</a>
+      </div>
 
-    <div class="stats" id="stats">Loading data...</div>
+      <div class="stats" id="stats">Loading data...</div>
 
-    <div class="table-container">
-      <div id="data-table"></div>
+      <div class="table-container">
+        <div id="data-table"></div>
+      </div>
     </div>
   </div>
 
