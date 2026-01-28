@@ -1053,10 +1053,18 @@ function generateHtml(outputPath: string, title: string, version: string): void 
     }
 
     /* Stats bar */
-    .stats {
-      padding: 16px 32px;
+    .stats-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 32px;
       background: var(--blue-light);
       border-bottom: 1px solid var(--gray-300);
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .stats {
       font-size: 0.875rem;
       font-weight: 600;
       color: var(--navy-dark);
@@ -1072,6 +1080,22 @@ function generateHtml(outputPath: string, title: string, version: string): void 
       background: var(--cyan);
       border-radius: 50%;
       animation: pulse 2s ease-in-out infinite;
+    }
+
+    .table-hint {
+      font-size: 0.75rem;
+      color: var(--gray-500);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .table-hint::before {
+      content: '';
+      width: 16px;
+      height: 16px;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23757575'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z'/%3E%3C/svg%3E");
+      background-size: contain;
     }
 
     @keyframes pulse {
@@ -1119,6 +1143,34 @@ function generateHtml(outputPath: string, title: string, version: string): void 
       font-size: 0.7rem;
       text-transform: uppercase;
       letter-spacing: 0.08em;
+    }
+
+    /* Column resize handle */
+    .tabulator .tabulator-header .tabulator-col .tabulator-col-resize-handle {
+      width: 8px;
+      right: -4px;
+      background: transparent;
+      transition: background 0.15s ease;
+    }
+
+    .tabulator .tabulator-header .tabulator-col .tabulator-col-resize-handle:hover {
+      background: var(--blue-accent);
+      cursor: col-resize;
+    }
+
+    .tabulator .tabulator-header .tabulator-col.tabulator-col-resizing {
+      background: var(--blue-light);
+    }
+
+    .tabulator .tabulator-header .tabulator-col.tabulator-col-resizing .tabulator-col-resize-handle {
+      background: var(--blue-accent);
+    }
+
+    /* Resize guide line */
+    .tabulator .tabulator-col-resize-guide {
+      background: var(--blue-accent);
+      width: 2px;
+      opacity: 0.8;
     }
 
     .tabulator .tabulator-tableholder .tabulator-table {
@@ -1360,7 +1412,10 @@ function generateHtml(outputPath: string, title: string, version: string): void 
         <a href="./data-dictionary.xlsx" class="download-btn" download>Download Excel</a>
       </div>
 
-      <div class="stats" id="stats">Loading data...</div>
+      <div class="stats-row">
+        <div class="stats" id="stats">Loading data...</div>
+        <div class="table-hint">Drag column edges to resize &bull; Drag headers to reorder</div>
+      </div>
 
       <div class="table-container">
         <div id="data-table"></div>
@@ -1483,6 +1538,11 @@ function generateHtml(outputPath: string, title: string, version: string): void 
         paginationSizeSelector: [25, 50, 100, 200],
         movableColumns: true,
         resizableColumns: true,
+        resizableColumnGuide: true,
+        columnDefaults: {
+          resizable: true,
+          minWidth: 60
+        },
         initialSort: currentTab === 'fields' ?
           [{column: "path", dir: "asc"}, {column: "method", dir: "asc"}] :
           [{column: "name", dir: "asc"}],
