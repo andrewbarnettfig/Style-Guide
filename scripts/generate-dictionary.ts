@@ -775,56 +775,74 @@ function generateHtml(outputPath: string, title: string, version: string): void 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Data Dictionary - ${title}</title>
   <link href="https://unpkg.com/tabulator-tables@5.5.0/dist/css/tabulator.min.css" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
     :root {
-      --primary: #4f46e5;
-      --primary-dark: #4338ca;
-      --primary-light: #818cf8;
-      --accent: #06b6d4;
-      --success: #10b981;
-      --surface: #ffffff;
-      --surface-elevated: #ffffff;
-      --background: #f8fafc;
-      --background-secondary: #f1f5f9;
-      --text-primary: #0f172a;
-      --text-secondary: #475569;
-      --text-muted: #94a3b8;
-      --border: #e2e8f0;
-      --border-light: #f1f5f9;
-      --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-      --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.07), 0 2px 4px -2px rgb(0 0 0 / 0.07);
-      --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.08), 0 4px 6px -4px rgb(0 0 0 / 0.08);
-      --radius-sm: 6px;
-      --radius-md: 10px;
-      --radius-lg: 16px;
-      --transition: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+      --bg-dark: #0a0a0f;
+      --bg-card: #12121a;
+      --bg-elevated: #1a1a25;
+      --bg-hover: #222230;
+      --border-subtle: rgba(255, 255, 255, 0.06);
+      --border-glow: rgba(139, 92, 246, 0.3);
+      --text-primary: #f0f0f5;
+      --text-secondary: #a0a0b0;
+      --text-muted: #606070;
+      --accent-purple: #8b5cf6;
+      --accent-cyan: #06d6d6;
+      --accent-pink: #ec4899;
+      --accent-lime: #84cc16;
+      --gradient-main: linear-gradient(135deg, #8b5cf6 0%, #06d6d6 50%, #ec4899 100%);
+      --gradient-btn: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%);
+      --glow-purple: 0 0 30px rgba(139, 92, 246, 0.4);
+      --glow-cyan: 0 0 30px rgba(6, 214, 214, 0.4);
+      --radius: 16px;
+      --radius-sm: 10px;
     }
 
     * {
       box-sizing: border-box;
+      margin: 0;
+      padding: 0;
     }
 
     body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      margin: 0;
-      padding: 32px;
-      background: var(--background);
+      font-family: 'Space Grotesk', -apple-system, sans-serif;
+      background: var(--bg-dark);
       color: var(--text-primary);
-      line-height: 1.5;
-      -webkit-font-smoothing: antialiased;
+      min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
     }
 
-    .container {
+    /* Animated background */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background:
+        radial-gradient(ellipse 80% 50% at 20% -20%, rgba(139, 92, 246, 0.15) 0%, transparent 50%),
+        radial-gradient(ellipse 60% 40% at 80% 0%, rgba(6, 214, 214, 0.12) 0%, transparent 50%),
+        radial-gradient(ellipse 50% 30% at 10% 100%, rgba(236, 72, 153, 0.1) 0%, transparent 50%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .page-wrapper {
+      position: relative;
+      z-index: 1;
+      padding: 40px;
       max-width: 100%;
-      margin: 0 auto;
     }
 
+    /* Header */
     header {
-      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-      color: white;
-      padding: 32px 40px;
-      border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius) var(--radius) 0 0;
+      padding: 48px 48px 40px;
       position: relative;
       overflow: hidden;
     }
@@ -833,137 +851,186 @@ function generateHtml(outputPath: string, title: string, version: string): void 
       content: '';
       position: absolute;
       top: 0;
+      left: 0;
       right: 0;
+      height: 4px;
+      background: var(--gradient-main);
+    }
+
+    header::after {
+      content: '';
+      position: absolute;
+      top: -150px;
+      right: -100px;
       width: 400px;
-      height: 100%;
-      background: linear-gradient(135deg, transparent 0%, rgba(255,255,255,0.08) 100%);
+      height: 400px;
+      background: radial-gradient(circle, rgba(139, 92, 246, 0.08) 0%, transparent 70%);
       pointer-events: none;
     }
 
-    header h1 {
-      margin: 0 0 8px 0;
-      font-size: 1.75rem;
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      gap: 24px;
+    }
+
+    .header-text h1 {
+      font-size: 2.5rem;
       font-weight: 700;
-      letter-spacing: -0.025em;
+      letter-spacing: -0.03em;
+      margin-bottom: 16px;
+      background: var(--gradient-main);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
     }
 
     .meta {
       display: flex;
-      gap: 24px;
-      font-size: 0.875rem;
-      opacity: 0.9;
-      font-weight: 500;
+      gap: 32px;
+      flex-wrap: wrap;
     }
 
-    .meta span {
+    .meta-item {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 12px;
+      padding: 12px 20px;
+      background: var(--bg-elevated);
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-subtle);
     }
 
-    .meta span::before {
-      content: '';
-      width: 6px;
-      height: 6px;
-      background: var(--accent);
-      border-radius: 50%;
+    .meta-item .icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
     }
 
-    .card {
-      background: var(--surface);
-      border-radius: 0 0 var(--radius-lg) var(--radius-lg);
-      box-shadow: var(--shadow-lg);
+    .meta-item:first-child .icon {
+      background: linear-gradient(135deg, rgba(139, 92, 246, 0.2) 0%, rgba(139, 92, 246, 0.05) 100%);
+      color: var(--accent-purple);
+    }
+
+    .meta-item:last-child .icon {
+      background: linear-gradient(135deg, rgba(6, 214, 214, 0.2) 0%, rgba(6, 214, 214, 0.05) 100%);
+      color: var(--accent-cyan);
+    }
+
+    .meta-item .label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+      margin-bottom: 2px;
+    }
+
+    .meta-item .value {
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    /* Main card */
+    .main-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-top: none;
+      border-radius: 0 0 var(--radius) var(--radius);
       overflow: hidden;
     }
 
+    /* Tab navigation */
     .tab-navigation {
       display: flex;
-      gap: 4px;
-      padding: 20px 24px 0;
-      background: var(--surface);
-      border-bottom: 1px solid var(--border-light);
+      gap: 8px;
+      padding: 24px 32px;
+      background: var(--bg-elevated);
+      border-bottom: 1px solid var(--border-subtle);
     }
 
     .tab-btn {
-      padding: 12px 24px;
+      padding: 14px 28px;
       border: none;
       background: transparent;
-      cursor: pointer;
-      border-radius: var(--radius-sm) var(--radius-sm) 0 0;
-      font-size: 0.875rem;
-      font-weight: 500;
       color: var(--text-secondary);
-      transition: all var(--transition);
+      font-family: inherit;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      border-radius: var(--radius-sm);
+      transition: all 0.2s ease;
       position: relative;
     }
 
     .tab-btn:hover {
-      color: var(--primary);
-      background: var(--background-secondary);
+      color: var(--text-primary);
+      background: var(--bg-hover);
     }
 
     .tab-btn.active {
-      color: var(--primary);
-      background: var(--background);
+      color: white;
+      background: var(--gradient-btn);
+      box-shadow: var(--glow-purple), 0 4px 15px rgba(139, 92, 246, 0.3);
     }
 
-    .tab-btn.active::after {
-      content: '';
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      height: 3px;
-      background: var(--primary);
-      border-radius: 3px 3px 0 0;
-    }
-
+    /* Controls */
     .controls {
-      background: var(--background);
-      padding: 20px 24px;
+      padding: 24px 32px;
       display: flex;
       flex-wrap: wrap;
-      gap: 12px;
+      gap: 16px;
       align-items: center;
-      border-bottom: 1px solid var(--border);
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border-subtle);
     }
 
     .search-wrapper {
       position: relative;
       flex: 1;
-      min-width: 280px;
-      max-width: 400px;
+      min-width: 300px;
+      max-width: 450px;
     }
 
     .search-wrapper::before {
       content: '';
       position: absolute;
-      left: 14px;
+      left: 18px;
       top: 50%;
       transform: translateY(-50%);
-      width: 18px;
-      height: 18px;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394a3b8'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z'/%3E%3C/svg%3E");
+      width: 20px;
+      height: 20px;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23606070'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z'/%3E%3C/svg%3E");
       background-size: contain;
       pointer-events: none;
+      transition: all 0.2s ease;
+    }
+
+    .search-wrapper:focus-within::before {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%238b5cf6'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z'/%3E%3C/svg%3E");
     }
 
     .controls input[type="text"] {
       width: 100%;
-      padding: 10px 14px 10px 44px;
-      border: 1px solid var(--border);
-      border-radius: var(--radius-md);
-      font-size: 0.875rem;
-      font-family: inherit;
-      background: var(--surface);
+      padding: 14px 20px 14px 52px;
+      background: var(--bg-elevated);
+      border: 2px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
       color: var(--text-primary);
-      transition: all var(--transition);
+      font-family: inherit;
+      font-size: 0.95rem;
+      transition: all 0.2s ease;
     }
 
     .controls input[type="text"]:focus {
       outline: none;
-      border-color: var(--primary-light);
-      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+      border-color: var(--accent-purple);
+      box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.15), var(--glow-purple);
     }
 
     .controls input[type="text"]::placeholder {
@@ -971,24 +1038,25 @@ function generateHtml(outputPath: string, title: string, version: string): void 
     }
 
     .controls select {
-      padding: 10px 36px 10px 14px;
-      border: 1px solid var(--border);
-      border-radius: var(--radius-md);
-      font-size: 0.875rem;
-      font-family: inherit;
-      background: var(--surface) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394a3b8'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E") no-repeat right 10px center;
+      padding: 14px 44px 14px 18px;
+      background: var(--bg-elevated) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23606070'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E") no-repeat right 14px center;
       background-size: 18px;
+      border: 2px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
       color: var(--text-primary);
+      font-family: inherit;
+      font-size: 0.9rem;
+      font-weight: 500;
       cursor: pointer;
-      min-width: 160px;
+      min-width: 170px;
       appearance: none;
-      transition: all var(--transition);
+      transition: all 0.2s ease;
     }
 
     .controls select:focus {
       outline: none;
-      border-color: var(--primary-light);
-      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+      border-color: var(--accent-cyan);
+      box-shadow: 0 0 0 4px rgba(6, 214, 214, 0.15);
     }
 
     .controls select:hover {
@@ -996,27 +1064,28 @@ function generateHtml(outputPath: string, title: string, version: string): void 
     }
 
     .download-btn {
-      background: linear-gradient(135deg, var(--success) 0%, #059669 100%);
+      background: var(--gradient-btn);
       color: white;
       border: none;
-      padding: 10px 20px;
-      border-radius: var(--radius-md);
+      padding: 14px 28px;
+      border-radius: var(--radius-sm);
       cursor: pointer;
-      font-size: 0.875rem;
-      font-weight: 600;
       font-family: inherit;
+      font-size: 0.9rem;
+      font-weight: 700;
       text-decoration: none;
       display: inline-flex;
       align-items: center;
-      gap: 8px;
-      transition: all var(--transition);
-      box-shadow: var(--shadow-sm);
+      gap: 10px;
+      transition: all 0.2s ease;
       margin-left: auto;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
     }
 
     .download-btn:hover {
-      transform: translateY(-1px);
-      box-shadow: var(--shadow-md);
+      transform: translateY(-2px);
+      box-shadow: var(--glow-purple), 0 8px 25px rgba(139, 92, 246, 0.4);
     }
 
     .download-btn:active {
@@ -1025,62 +1094,64 @@ function generateHtml(outputPath: string, title: string, version: string): void 
 
     .download-btn::before {
       content: '';
-      width: 18px;
-      height: 18px;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='white'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4'/%3E%3C/svg%3E");
+      width: 20px;
+      height: 20px;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='white' stroke-width='2.5'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4'/%3E%3C/svg%3E");
       background-size: contain;
     }
 
+    /* Stats bar */
     .stats {
-      padding: 14px 24px;
-      background: var(--surface);
-      border-bottom: 1px solid var(--border);
-      font-size: 0.8125rem;
+      padding: 16px 32px;
+      background: linear-gradient(90deg, rgba(139, 92, 246, 0.08) 0%, rgba(6, 214, 214, 0.08) 100%);
+      border-bottom: 1px solid var(--border-subtle);
+      font-size: 0.875rem;
+      font-weight: 600;
       color: var(--text-secondary);
-      font-weight: 500;
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 12px;
     }
 
     .stats::before {
       content: '';
-      width: 8px;
-      height: 8px;
-      background: var(--accent);
+      width: 10px;
+      height: 10px;
+      background: var(--accent-lime);
       border-radius: 50%;
-      animation: pulse 2s infinite;
+      box-shadow: 0 0 12px var(--accent-lime);
+      animation: glow-pulse 2s ease-in-out infinite;
     }
 
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.5; }
+    @keyframes glow-pulse {
+      0%, 100% { opacity: 1; box-shadow: 0 0 12px var(--accent-lime); }
+      50% { opacity: 0.6; box-shadow: 0 0 6px var(--accent-lime); }
     }
 
+    /* Table container */
     .table-container {
-      background: var(--surface);
-      overflow: hidden;
+      background: var(--bg-card);
     }
 
     #data-table {
-      font-size: 0.8125rem;
-      border: none;
+      font-size: 0.85rem;
     }
 
-    /* Tabulator Overrides */
+    /* Tabulator Dark Theme Override */
     .tabulator {
+      background: var(--bg-card);
       border: none;
-      background: var(--surface);
+      font-family: 'Space Grotesk', sans-serif;
     }
 
     .tabulator .tabulator-header {
-      background: var(--background-secondary);
-      border-bottom: 2px solid var(--border);
+      background: var(--bg-elevated);
+      border-bottom: 2px solid var(--border-subtle);
     }
 
     .tabulator .tabulator-header .tabulator-col {
       background: transparent;
-      border-right: 1px solid var(--border);
+      border-right: 1px solid var(--border-subtle);
     }
 
     .tabulator .tabulator-header .tabulator-col:last-child {
@@ -1088,98 +1159,112 @@ function generateHtml(outputPath: string, title: string, version: string): void 
     }
 
     .tabulator .tabulator-header .tabulator-col .tabulator-col-content {
-      padding: 14px 16px;
+      padding: 18px 16px;
     }
 
     .tabulator .tabulator-header .tabulator-col .tabulator-col-title {
-      font-weight: 600;
+      font-weight: 700;
       color: var(--text-primary);
-      font-size: 0.75rem;
+      font-size: 0.7rem;
       text-transform: uppercase;
-      letter-spacing: 0.05em;
+      letter-spacing: 0.1em;
     }
 
     .tabulator .tabulator-tableholder .tabulator-table {
-      background: var(--surface);
+      background: var(--bg-card);
+      color: var(--text-secondary);
     }
 
     .tabulator-row {
-      border-bottom: 1px solid var(--border-light);
-      transition: background var(--transition);
+      background: var(--bg-card) !important;
+      border-bottom: 1px solid var(--border-subtle);
+      transition: all 0.15s ease;
     }
 
     .tabulator-row:hover {
-      background: var(--background) !important;
-    }
-
-    .tabulator-row .tabulator-cell {
-      padding: 12px 16px;
-      border-right: none;
-      color: var(--text-secondary);
+      background: var(--bg-hover) !important;
     }
 
     .tabulator-row.tabulator-row-even {
-      background: var(--surface);
+      background: rgba(255, 255, 255, 0.01) !important;
+    }
+
+    .tabulator-row .tabulator-cell {
+      padding: 16px;
+      border-right: none;
+      color: var(--text-secondary);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
     }
 
     .tabulator .tabulator-footer {
-      background: var(--background-secondary);
-      border-top: 2px solid var(--border);
-      padding: 12px 16px;
+      background: var(--bg-elevated);
+      border-top: 2px solid var(--border-subtle);
+      padding: 16px 20px;
     }
 
     .tabulator .tabulator-footer .tabulator-page {
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      background: var(--surface);
+      background: var(--bg-card);
+      border: 2px solid var(--border-subtle);
+      border-radius: 8px;
       color: var(--text-secondary);
-      padding: 6px 12px;
-      margin: 0 2px;
-      font-weight: 500;
-      transition: all var(--transition);
+      padding: 8px 14px;
+      margin: 0 4px;
+      font-weight: 600;
+      font-family: inherit;
+      transition: all 0.15s ease;
     }
 
     .tabulator .tabulator-footer .tabulator-page:hover {
-      border-color: var(--primary-light);
-      color: var(--primary);
+      border-color: var(--accent-purple);
+      color: var(--accent-purple);
     }
 
     .tabulator .tabulator-footer .tabulator-page.active {
-      background: var(--primary);
-      border-color: var(--primary);
+      background: var(--gradient-btn);
+      border-color: transparent;
       color: white;
+      box-shadow: var(--glow-purple);
     }
 
     .tabulator .tabulator-header .tabulator-col .tabulator-header-filter input {
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      padding: 6px 10px;
+      background: var(--bg-card);
+      border: 2px solid var(--border-subtle);
+      border-radius: 6px;
+      padding: 8px 12px;
       font-size: 0.75rem;
-      font-family: inherit;
-      background: var(--surface);
-      transition: all var(--transition);
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--text-primary);
+      transition: all 0.15s ease;
     }
 
     .tabulator .tabulator-header .tabulator-col .tabulator-header-filter input:focus {
       outline: none;
-      border-color: var(--primary-light);
-      box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.1);
+      border-color: var(--accent-cyan);
+      box-shadow: 0 0 0 3px rgba(6, 214, 214, 0.15);
     }
 
+    .tabulator .tabulator-footer .tabulator-paginator {
+      color: var(--text-secondary);
+      font-family: inherit;
+    }
+
+    /* Loading state */
     .loading {
       text-align: center;
-      padding: 80px 40px;
+      padding: 100px 40px;
       color: var(--text-muted);
     }
 
     .loading::before {
       content: '';
       display: block;
-      width: 40px;
-      height: 40px;
-      margin: 0 auto 16px;
-      border: 3px solid var(--border);
-      border-top-color: var(--primary);
+      width: 50px;
+      height: 50px;
+      margin: 0 auto 24px;
+      border: 3px solid var(--border-subtle);
+      border-top-color: var(--accent-purple);
+      border-right-color: var(--accent-cyan);
       border-radius: 50%;
       animation: spin 0.8s linear infinite;
     }
@@ -1188,19 +1273,43 @@ function generateHtml(outputPath: string, title: string, version: string): void 
       to { transform: rotate(360deg); }
     }
 
+    /* Error state */
     .error {
-      background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
-      color: #b91c1c;
-      padding: 24px;
-      border-radius: var(--radius-md);
-      margin: 24px;
-      border: 1px solid #fecaca;
-      font-weight: 500;
+      background: linear-gradient(135deg, rgba(236, 72, 153, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+      color: var(--accent-pink);
+      padding: 32px;
+      border-radius: var(--radius-sm);
+      margin: 32px;
+      border: 2px solid rgba(236, 72, 153, 0.3);
+      font-weight: 600;
     }
 
     /* Responsive */
+    @media (max-width: 1024px) {
+      .page-wrapper {
+        padding: 24px;
+      }
+
+      header {
+        padding: 32px;
+      }
+
+      .header-text h1 {
+        font-size: 2rem;
+      }
+
+      .controls {
+        padding: 20px 24px;
+      }
+
+      .tab-navigation {
+        padding: 20px 24px;
+        overflow-x: auto;
+      }
+    }
+
     @media (max-width: 768px) {
-      body {
+      .page-wrapper {
         padding: 16px;
       }
 
@@ -1208,17 +1317,13 @@ function generateHtml(outputPath: string, title: string, version: string): void 
         padding: 24px;
       }
 
-      header h1 {
-        font-size: 1.375rem;
+      .header-text h1 {
+        font-size: 1.5rem;
       }
 
       .meta {
         flex-direction: column;
-        gap: 8px;
-      }
-
-      .controls {
-        padding: 16px;
+        gap: 12px;
       }
 
       .search-wrapper {
@@ -1236,20 +1341,41 @@ function generateHtml(outputPath: string, title: string, version: string): void 
         justify-content: center;
         margin-left: 0;
       }
+
+      .tab-btn {
+        padding: 12px 20px;
+        font-size: 0.8rem;
+      }
     }
   </style>
 </head>
 <body>
-  <div class="container">
+  <div class="page-wrapper">
     <header>
-      <h1>API Data Dictionary</h1>
-      <div class="meta">
-        <span id="api-info">Loading...</span>
-        <span id="generated-at"></span>
+      <div class="header-content">
+        <div class="header-text">
+          <h1>API Data Dictionary</h1>
+          <div class="meta">
+            <div class="meta-item">
+              <div class="icon">&#9883;</div>
+              <div>
+                <div class="label">API</div>
+                <div class="value" id="api-info">Loading...</div>
+              </div>
+            </div>
+            <div class="meta-item">
+              <div class="icon">&#9202;</div>
+              <div>
+                <div class="label">Generated</div>
+                <div class="value" id="generated-at">—</div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </header>
 
-    <div class="card">
+    <div class="main-card">
       <div class="tab-navigation">
         <button class="tab-btn active" data-tab="fields">Field Instances</button>
         <button class="tab-btn" data-tab="endpoints">Endpoints</button>
@@ -1279,7 +1405,7 @@ function generateHtml(outputPath: string, title: string, version: string): void 
         <select id="filter-status">
           <option value="">All Status Codes</option>
         </select>
-        <a href="./data-dictionary.xlsx" class="download-btn" download>Download Excel</a>
+        <a href="./data-dictionary.xlsx" class="download-btn" download>Download</a>
       </div>
 
       <div class="stats" id="stats">Loading data...</div>
