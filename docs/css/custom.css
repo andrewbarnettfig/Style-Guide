@@ -134,7 +134,7 @@
     color: var(--primary-color);
   }
 
-  .main-nav ul {
+  .main-nav > ul {
     display: flex;
     list-style: none;
     margin: 0;
