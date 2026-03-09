@@ -240,9 +240,20 @@
     </footer>
 
     <script>
-        // Optional JavaScript for additional interactivity
         document.addEventListener('DOMContentLoaded', function () {
-            // You could add animations or other interactive elements here
+            const toggle = document.querySelector('.nav-dropdown-toggle');
+            const menu = document.querySelector('.nav-dropdown-menu');
+
+            toggle.addEventListener('click', function (e) {
+                e.preventDefault();
+                menu.classList.toggle('open');
+            });
+
+            document.addEventListener('click', function (e) {
+                if (!e.target.closest('.nav-dropdown')) {
+                    menu.classList.remove('open');
+                }
+            });
         });
     </script>
 </body>

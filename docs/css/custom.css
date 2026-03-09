@@ -194,7 +194,7 @@
     flex-direction: column;
   }
 
-  .nav-dropdown:hover .nav-dropdown-menu {
+  .nav-dropdown-menu.open {
     display: flex;
   }
 
