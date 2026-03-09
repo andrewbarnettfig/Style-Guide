@@ -783,6 +783,9 @@ function generateHtml(outputPath: string): void {
   <title>API Data Dictionary</title>
   <link href="https://unpkg.com/tabulator-tables@5.5.0/dist/css/tabulator.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./css/custom.css">
+  <link rel="icon" type="image/png" href="./favicon-32x32.png" sizes="32x32" />
+  <link rel="icon" type="image/png" href="./favicon-16x16.png" sizes="16x16" />
   <style>
     :root {
       --navy: #001a3e;
@@ -1385,6 +1388,28 @@ function generateHtml(outputPath: string): void {
   </style>
 </head>
 <body>
+  <header class="site-header">
+    <div class="container">
+      <nav class="main-nav">
+        <ul>
+          <li><a href="index.html">API Documentation</a></li>
+          <li><a href="data-dictionary.html" class="active">Data Dictionary</a></li>
+          <li class="nav-dropdown">
+            <a href="#" class="nav-dropdown-toggle">Working Groups</a>
+            <ul class="nav-dropdown-menu">
+              <li><a href="https://github.com/Insured-Retirement-Institute/Application-Status" target="_blank">Application Status</a></li>
+              <li><a href="https://github.com/Insured-Retirement-Institute/Producer-Training" target="_blank">Producer Training</a></li>
+              <li><a href="https://github.com/Insured-Retirement-Institute/Activated-Annuity-Income" target="_blank">Policy Income</a></li>
+              <li><a href="https://github.com/Insured-Retirement-Institute/One-Time-Withdrawals" target="_blank">One-Time Withdrawals</a></li>
+              <li><a href="https://github.com/Insured-Retirement-Institute/One-Time-Withdrawal-Quote" target="_blank">One-Time Withdrawal Quote</a></li>
+              <li><a href="https://github.com/Insured-Retirement-Institute/Systematic-Program" target="_blank">Systematic Program</a></li>
+            </ul>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
   <div class="page-wrapper">
     <header>
       <div class="header-content">
@@ -1695,6 +1720,21 @@ function generateHtml(outputPath: string): void {
 
     // Load manifest and data on page load
     loadManifest();
+
+    // Working Groups dropdown
+    const toggle = document.querySelector('.nav-dropdown-toggle');
+    const menu = document.querySelector('.nav-dropdown-menu');
+    if (toggle && menu) {
+      toggle.addEventListener('click', function(e) {
+        e.preventDefault();
+        menu.classList.toggle('open');
+      });
+      document.addEventListener('click', function(e) {
+        if (!e.target.closest('.nav-dropdown')) {
+          menu.classList.remove('open');
+        }
+      });
+    }
   </script>
 </body>
 </html>`;
