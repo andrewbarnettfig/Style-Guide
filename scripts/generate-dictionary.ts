@@ -544,230 +544,237 @@ function sanitizeOperationId(method: string, path: string): string {
 }
 
 async function generateDataDictionary(): Promise<void> {
-  // Determine OpenAPI file path
-  const defaultPath = path.join(__dirname, '..', 'docs', 'appstatusv2.yaml');
-  const openApiPath = process.env.OPENAPI_PATH || defaultPath;
+  const specsDir = path.join(__dirname, '..', 'docs', 'specs');
+  const publicDir = path.join(__dirname, '..', 'public');
 
-  console.log(`Loading OpenAPI spec from: ${openApiPath}`);
+  if (!fs.existsSync(publicDir)) {
+    fs.mkdirSync(publicDir, { recursive: true });
+  }
 
-  // Parse and dereference the OpenAPI spec
-  const api = await SwaggerParser.dereference(openApiPath) as OpenAPISpec;
+  const specFiles = fs.readdirSync(specsDir)
+    .filter(f => f.endsWith('.yaml') || f.endsWith('.yml'))
+    .sort();
 
-  console.log(`Parsed: ${api.info.title} v${api.info.version}`);
+  if (specFiles.length === 0) {
+    console.error(`No YAML spec files found in ${specsDir}`);
+    process.exit(1);
+  }
 
-  const fieldInstances: FieldInstance[] = [];
-  const endpoints: EndpointSummary[] = [];
-  const schemas: SchemaSummary[] = [];
+  const manifest: Array<{ key: string; title: string; version: string }> = [];
 
-  // Process paths
-  for (const [pathUrl, pathItem] of Object.entries(api.paths)) {
-    const pathParams = pathItem.parameters || [];
+  for (const specFile of specFiles) {
+    const specPath = path.join(specsDir, specFile);
+    const key = path.basename(specFile, path.extname(specFile));
 
-    const methods = ['get', 'post', 'put', 'patch', 'delete'] as const;
+    console.log(`\nProcessing: ${specFile}`);
 
-    for (const method of methods) {
-      const operation = pathItem[method];
-      if (!operation) continue;
+    const api = await SwaggerParser.dereference(specPath) as OpenAPISpec;
+    console.log(`Parsed: ${api.info.title} v${api.info.version}`);
 
-      const operationId = operation.operationId || sanitizeOperationId(method, pathUrl);
-      const tags = (operation.tags || []).join(', ');
-      const summary = operation.summary || '';
-      const description = operation.description || '';
+    const fieldInstances: FieldInstance[] = [];
+    const endpoints: EndpointSummary[] = [];
+    const schemas: SchemaSummary[] = [];
 
-      // Collect request media types
-      const requestMediaTypes: string[] = [];
-      if (operation.requestBody?.content) {
-        requestMediaTypes.push(...Object.keys(operation.requestBody.content));
-      }
+    // Process paths
+    for (const [pathUrl, pathItem] of Object.entries(api.paths)) {
+      const pathParams = pathItem.parameters || [];
 
-      // Collect response codes and media types
-      const responseCodesAndMediaTypes: string[] = [];
-      if (operation.responses) {
-        for (const [code, response] of Object.entries(operation.responses)) {
-          const mediaTypes = response.content ? Object.keys(response.content) : [];
-          if (mediaTypes.length > 0) {
-            responseCodesAndMediaTypes.push(`${code}: ${mediaTypes.join(', ')}`);
-          } else {
-            responseCodesAndMediaTypes.push(code);
+      const methods = ['get', 'post', 'put', 'patch', 'delete'] as const;
+
+      for (const method of methods) {
+        const operation = pathItem[method];
+        if (!operation) continue;
+
+        const operationId = operation.operationId || sanitizeOperationId(method, pathUrl);
+        const tags = (operation.tags || []).join(', ');
+        const summary = operation.summary || '';
+        const description = operation.description || '';
+
+        // Collect request media types
+        const requestMediaTypes: string[] = [];
+        if (operation.requestBody?.content) {
+          requestMediaTypes.push(...Object.keys(operation.requestBody.content));
+        }
+
+        // Collect response codes and media types
+        const responseCodesAndMediaTypes: string[] = [];
+        if (operation.responses) {
+          for (const [code, response] of Object.entries(operation.responses)) {
+            const mediaTypes = response.content ? Object.keys(response.content) : [];
+            if (mediaTypes.length > 0) {
+              responseCodesAndMediaTypes.push(`${code}: ${mediaTypes.join(', ')}`);
+            } else {
+              responseCodesAndMediaTypes.push(code);
+            }
           }
         }
-      }
 
-      // Count parameters
-      const allParams = [...pathParams, ...(operation.parameters || [])];
+        // Count parameters
+        const allParams = [...pathParams, ...(operation.parameters || [])];
 
-      // Add endpoint summary
-      endpoints.push({
-        method: method.toUpperCase(),
-        path: pathUrl,
-        operationId,
-        tags,
-        summary,
-        description,
-        requestMediaTypes: requestMediaTypes.join(', '),
-        responseCodesAndMediaTypes: responseCodesAndMediaTypes.join('; '),
-        parameterCount: allParams.length
-      });
+        // Add endpoint summary
+        endpoints.push({
+          method: method.toUpperCase(),
+          path: pathUrl,
+          operationId,
+          tags,
+          summary,
+          description,
+          requestMediaTypes: requestMediaTypes.join(', '),
+          responseCodesAndMediaTypes: responseCodesAndMediaTypes.join('; '),
+          parameterCount: allParams.length
+        });
 
-      const baseCtx = {
-        operationId,
-        method: method.toUpperCase(),
-        path: pathUrl,
-        tags,
-        summary
-      };
+        const baseCtx = {
+          operationId,
+          method: method.toUpperCase(),
+          path: pathUrl,
+          tags,
+          summary
+        };
 
-      // Process parameters (path-level + operation-level)
-      for (const param of allParams) {
-        fieldInstances.push(...processParameter(param, baseCtx));
-      }
+        // Process parameters (path-level + operation-level)
+        for (const param of allParams) {
+          fieldInstances.push(...processParameter(param, baseCtx));
+        }
 
-      // Process request body
-      if (operation.requestBody?.content) {
-        for (const [mediaType, mediaTypeObj] of Object.entries(operation.requestBody.content)) {
-          if (mediaTypeObj.schema) {
-            const schemaName = getSchemaName(mediaTypeObj.schema);
-            const ctx: FlattenContext = {
-              ...baseCtx,
-              location: 'request_body',
-              httpStatus: '',
-              mediaType,
-              sourceRef: `requestBody.content.${mediaType}.schema`,
-              requiredFields: new Set(mediaTypeObj.schema.required || [])
-            };
+        // Process request body
+        if (operation.requestBody?.content) {
+          for (const [mediaType, mediaTypeObj] of Object.entries(operation.requestBody.content)) {
+            if (mediaTypeObj.schema) {
+              const schemaName = getSchemaName(mediaTypeObj.schema);
+              const ctx: FlattenContext = {
+                ...baseCtx,
+                location: 'request_body',
+                httpStatus: '',
+                mediaType,
+                sourceRef: `requestBody.content.${mediaType}.schema`,
+                requiredFields: new Set(mediaTypeObj.schema.required || [])
+              };
 
-            fieldInstances.push(...flattenSchema(mediaTypeObj.schema, '', ctx, schemaName));
+              fieldInstances.push(...flattenSchema(mediaTypeObj.schema, '', ctx, schemaName));
+            }
           }
         }
-      }
 
-      // Process responses
-      if (operation.responses) {
-        for (const [statusCode, response] of Object.entries(operation.responses)) {
-          if (response.content) {
-            for (const [mediaType, mediaTypeObj] of Object.entries(response.content)) {
-              if (mediaTypeObj.schema) {
-                const schemaName = getSchemaName(mediaTypeObj.schema);
-                const ctx: FlattenContext = {
-                  ...baseCtx,
-                  location: 'response_body',
-                  httpStatus: statusCode,
-                  mediaType,
-                  sourceRef: `responses.${statusCode}.content.${mediaType}.schema`,
-                  requiredFields: new Set(mediaTypeObj.schema.required || [])
-                };
+        // Process responses
+        if (operation.responses) {
+          for (const [statusCode, response] of Object.entries(operation.responses)) {
+            if (response.content) {
+              for (const [mediaType, mediaTypeObj] of Object.entries(response.content)) {
+                if (mediaTypeObj.schema) {
+                  const schemaName = getSchemaName(mediaTypeObj.schema);
+                  const ctx: FlattenContext = {
+                    ...baseCtx,
+                    location: 'response_body',
+                    httpStatus: statusCode,
+                    mediaType,
+                    sourceRef: `responses.${statusCode}.content.${mediaType}.schema`,
+                    requiredFields: new Set(mediaTypeObj.schema.required || [])
+                  };
 
-                fieldInstances.push(...flattenSchema(mediaTypeObj.schema, '', ctx, schemaName));
+                  fieldInstances.push(...flattenSchema(mediaTypeObj.schema, '', ctx, schemaName));
+                }
               }
             }
           }
         }
       }
     }
-  }
 
-  // Process component schemas for summary
-  if (api.components?.schemas) {
-    for (const [name, schema] of Object.entries(api.components.schemas)) {
-      const propCount = schema.properties ? Object.keys(schema.properties).length : 0;
-      schemas.push({
-        name,
-        type: schema.type || (schema.allOf ? 'allOf' : schema.oneOf ? 'oneOf' : schema.anyOf ? 'anyOf' : 'unknown'),
-        description: schema.description || '',
-        propertyCount: propCount,
-        required: (schema.required || []).join(', ')
-      });
+    // Process component schemas for summary
+    if (api.components?.schemas) {
+      for (const [name, schema] of Object.entries(api.components.schemas)) {
+        const propCount = schema.properties ? Object.keys(schema.properties).length : 0;
+        schemas.push({
+          name,
+          type: schema.type || (schema.allOf ? 'allOf' : schema.oneOf ? 'oneOf' : schema.anyOf ? 'anyOf' : 'unknown'),
+          description: schema.description || '',
+          propertyCount: propCount,
+          required: (schema.required || []).join(', ')
+        });
+      }
     }
+
+    // Sort field instances deterministically
+    fieldInstances.sort((a, b) => {
+      const pathCmp = a.path.localeCompare(b.path);
+      if (pathCmp !== 0) return pathCmp;
+
+      const methodCmp = a.method.localeCompare(b.method);
+      if (methodCmp !== 0) return methodCmp;
+
+      const locationOrder = ['path_param', 'query_param', 'header_param', 'cookie_param', 'request_body', 'response_body'];
+      const locCmp = locationOrder.indexOf(a.location) - locationOrder.indexOf(b.location);
+      if (locCmp !== 0) return locCmp;
+
+      const statusCmp = a.httpStatus.localeCompare(b.httpStatus);
+      if (statusCmp !== 0) return statusCmp;
+
+      return a.fieldPath.localeCompare(b.fieldPath);
+    });
+
+    // Sort endpoints
+    endpoints.sort((a, b) => {
+      const pathCmp = a.path.localeCompare(b.path);
+      if (pathCmp !== 0) return pathCmp;
+      return a.method.localeCompare(b.method);
+    });
+
+    // Sort schemas
+    schemas.sort((a, b) => a.name.localeCompare(b.name));
+
+    // Generate JSON output
+    const jsonOutput = {
+      generatedAt: new Date().toISOString(),
+      source: specPath,
+      apiInfo: {
+        title: api.info.title,
+        version: api.info.version,
+        description: api.info.description
+      },
+      fieldInstances,
+      endpoints,
+      schemas
+    };
+
+    const jsonPath = path.join(publicDir, `data-dictionary-${key}.json`);
+    fs.writeFileSync(jsonPath, JSON.stringify(jsonOutput, null, 2));
+    console.log(`Generated: ${jsonPath} (${fieldInstances.length} field instances)`);
+
+    // Generate Excel output
+    const workbook = XLSX.utils.book_new();
+
+    const fieldInstancesSheet = XLSX.utils.json_to_sheet(fieldInstances);
+    XLSX.utils.book_append_sheet(workbook, fieldInstancesSheet, 'Field Instances');
+
+    const endpointsSheet = XLSX.utils.json_to_sheet(endpoints);
+    XLSX.utils.book_append_sheet(workbook, endpointsSheet, 'Endpoints');
+
+    const schemasSheet = XLSX.utils.json_to_sheet(schemas);
+    XLSX.utils.book_append_sheet(workbook, schemasSheet, 'Schemas');
+
+    const xlsxPath = path.join(publicDir, `data-dictionary-${key}.xlsx`);
+    XLSX.writeFile(workbook, xlsxPath);
+    console.log(`Generated: ${xlsxPath}`);
+
+    manifest.push({ key, title: api.info.title, version: api.info.version });
   }
 
-  // Sort field instances deterministically
-  fieldInstances.sort((a, b) => {
-    const pathCmp = a.path.localeCompare(b.path);
-    if (pathCmp !== 0) return pathCmp;
+  // Write manifest
+  const manifestPath = path.join(publicDir, 'data-dictionary-manifest.json');
+  fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2));
+  console.log(`\nGenerated manifest: ${manifestPath} (${manifest.length} specs)`);
 
-    const methodCmp = a.method.localeCompare(b.method);
-    if (methodCmp !== 0) return methodCmp;
-
-    const locationOrder = ['path_param', 'query_param', 'header_param', 'cookie_param', 'request_body', 'response_body'];
-    const locCmp = locationOrder.indexOf(a.location) - locationOrder.indexOf(b.location);
-    if (locCmp !== 0) return locCmp;
-
-    const statusCmp = a.httpStatus.localeCompare(b.httpStatus);
-    if (statusCmp !== 0) return statusCmp;
-
-    return a.fieldPath.localeCompare(b.fieldPath);
-  });
-
-  // Sort endpoints
-  endpoints.sort((a, b) => {
-    const pathCmp = a.path.localeCompare(b.path);
-    if (pathCmp !== 0) return pathCmp;
-    return a.method.localeCompare(b.method);
-  });
-
-  // Sort schemas
-  schemas.sort((a, b) => a.name.localeCompare(b.name));
-
-  // Prepare output directory
-  const publicDir = path.join(__dirname, '..', 'public');
-  if (!fs.existsSync(publicDir)) {
-    fs.mkdirSync(publicDir, { recursive: true });
-  }
-
-  // Generate JSON output
-  const jsonOutput = {
-    generatedAt: new Date().toISOString(),
-    source: openApiPath,
-    apiInfo: {
-      title: api.info.title,
-      version: api.info.version,
-      description: api.info.description
-    },
-    fieldInstances,
-    endpoints,
-    schemas
-  };
-
-  const jsonPath = path.join(publicDir, 'data-dictionary.json');
-  fs.writeFileSync(jsonPath, JSON.stringify(jsonOutput, null, 2));
-  console.log(`Generated: ${jsonPath} (${fieldInstances.length} field instances)`);
-
-  // Generate Excel output
-  const workbook = XLSX.utils.book_new();
-
-  // Field Instances sheet
-  const fieldInstancesSheet = XLSX.utils.json_to_sheet(fieldInstances);
-  XLSX.utils.book_append_sheet(workbook, fieldInstancesSheet, 'Field Instances');
-
-  // Endpoints sheet
-  const endpointsSheet = XLSX.utils.json_to_sheet(endpoints);
-  XLSX.utils.book_append_sheet(workbook, endpointsSheet, 'Endpoints');
-
-  // Schemas sheet
-  const schemasSheet = XLSX.utils.json_to_sheet(schemas);
-  XLSX.utils.book_append_sheet(workbook, schemasSheet, 'Schemas');
-
-  const xlsxPath = path.join(publicDir, 'data-dictionary.xlsx');
-  XLSX.writeFile(workbook, xlsxPath);
-  console.log(`Generated: ${xlsxPath}`);
-
-  // Copy data-dictionary.html to public if it exists in templates
-  const templateHtmlPath = path.join(__dirname, 'templates', 'data-dictionary.html');
+  // Generate HTML
   const publicHtmlPath = path.join(publicDir, 'data-dictionary.html');
-
-  if (fs.existsSync(templateHtmlPath)) {
-    fs.copyFileSync(templateHtmlPath, publicHtmlPath);
-    console.log(`Copied: ${publicHtmlPath}`);
-  } else {
-    // Generate HTML inline
-    generateHtml(publicHtmlPath, api.info.title, api.info.version);
-    console.log(`Generated: ${publicHtmlPath}`);
-  }
+  generateHtml(publicHtmlPath);
+  console.log(`Generated: ${publicHtmlPath}`);
 
   console.log('\nData dictionary generation complete!');
 }
 
-function generateHtml(outputPath: string, title: string, version: string): void {
+function generateHtml(outputPath: string): void {
   const html = `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -892,6 +899,30 @@ function generateHtml(outputPath: string, title: string, version: string): void 
       font-weight: 600;
       color: var(--white);
       font-size: 0.95rem;
+    }
+
+    .spec-selector-select {
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: var(--radius-sm);
+      color: var(--white);
+      font-family: inherit;
+      font-size: 0.9rem;
+      font-weight: 600;
+      padding: 6px 12px;
+      cursor: pointer;
+      appearance: none;
+      min-width: 220px;
+    }
+
+    .spec-selector-select:focus {
+      outline: none;
+      border-color: rgba(255, 255, 255, 0.7);
+    }
+
+    .spec-selector-select option {
+      background: var(--navy-dark);
+      color: var(--white);
     }
 
     /* Main card */
@@ -1363,8 +1394,10 @@ function generateHtml(outputPath: string, title: string, version: string): void 
             <div class="meta-item">
               <div class="icon">&#128203;</div>
               <div>
-                <div class="label">API</div>
-                <div class="value" id="api-info">Loading...</div>
+                <div class="label">Specification</div>
+                <select id="spec-selector" class="spec-selector-select">
+                  <option value="">Loading specs...</option>
+                </select>
               </div>
             </div>
             <div class="meta-item">
@@ -1409,7 +1442,7 @@ function generateHtml(outputPath: string, title: string, version: string): void 
         <select id="filter-status">
           <option value="">All Status Codes</option>
         </select>
-        <a href="./data-dictionary.xlsx" class="download-btn" download>Download Excel</a>
+        <a href="#" class="download-btn" download>Download Excel</a>
       </div>
 
       <div class="stats-row">
@@ -1475,23 +1508,65 @@ function generateHtml(outputPath: string, title: string, version: string): void 
       {title: "Required Fields", field: "required", width: 300}
     ];
 
-    async function loadData() {
+    async function loadManifest() {
       try {
-        const response = await fetch('./data-dictionary.json');
+        const response = await fetch('./data-dictionary-manifest.json');
+        if (!response.ok) throw new Error('Failed to load spec manifest');
+        const manifest = await response.json();
+
+        const selector = document.getElementById('spec-selector');
+        selector.innerHTML = '';
+        manifest.forEach(spec => {
+          const option = document.createElement('option');
+          option.value = spec.key;
+          option.textContent = \`\${spec.title} v\${spec.version}\`;
+          selector.appendChild(option);
+        });
+
+        // Apply URL param if present
+        const urlParams = new URLSearchParams(window.location.search);
+        const specParam = urlParams.get('spec');
+        if (specParam && manifest.find(s => s.key === specParam)) {
+          selector.value = specParam;
+        }
+
+        selector.addEventListener('change', () => {
+          const key = selector.value;
+          const url = new URL(window.location);
+          url.searchParams.set('spec', key);
+          window.history.pushState({}, '', url);
+          loadData(key);
+        });
+
+        if (manifest.length > 0) {
+          loadData(selector.value);
+        }
+      } catch (error) {
+        document.getElementById('data-table').innerHTML =
+          \`<div class="error">Error loading manifest: \${error.message}</div>\`;
+      }
+    }
+
+    async function loadData(key) {
+      try {
+        const response = await fetch(\`./data-dictionary-\${key}.json\`);
         if (!response.ok) throw new Error('Failed to load data dictionary');
         data = await response.json();
 
         // Update header
-        document.getElementById('api-info').textContent =
-          \`\${data.apiInfo.title} v\${data.apiInfo.version}\`;
         document.getElementById('generated-at').textContent =
           \`Generated: \${new Date(data.generatedAt).toLocaleString()}\`;
 
-        // Populate status filter
+        // Update download link
+        const downloadBtn = document.querySelector('.download-btn');
+        if (downloadBtn) downloadBtn.href = \`./data-dictionary-\${key}.xlsx\`;
+
+        // Repopulate status filter
+        const statusSelect = document.getElementById('filter-status');
+        statusSelect.innerHTML = '<option value="">All Status Codes</option>';
         const statusCodes = [...new Set(data.fieldInstances
           .map(f => f.httpStatus)
           .filter(s => s))];
-        const statusSelect = document.getElementById('filter-status');
         statusCodes.sort().forEach(code => {
           const option = document.createElement('option');
           option.value = code;
@@ -1618,8 +1693,8 @@ function generateHtml(outputPath: string, title: string, version: string): void 
       });
     });
 
-    // Load data on page load
-    loadData();
+    // Load manifest and data on page load
+    loadManifest();
   </script>
 </body>
 </html>`;

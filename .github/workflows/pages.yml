@@ -35,8 +35,6 @@ jobs:
 
       - name: Build data dictionary
         run: npm run build:dictionary
-        env:
-          OPENAPI_PATH: ${{ vars.OPENAPI_PATH || 'docs/appstatusv2.yaml' }}
 
       - name: Copy existing docs to public
         run: |

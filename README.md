@@ -1,8 +1,19 @@
-# Style Guide
+# Digital First Specifications
 
-The style guide provides rules, regulations, and recommendations for Digital-First standards. OpenAPI definitions can be found on the [GitHub Page](https://insured-retirement-institute.github.io/Style-Guide/) of this repository.
+This repository contains:
 
-## Style Conventions
+* Published OpenAPI specifications for the Digital-First standards
+* Style Guide and Versioning conventions used for all OpenAPI specifications
+
+## Published OpenAPI Specifications
+
+Once a working group's API specification has been reviewed and approved by the [Governance Committee](https://www.irionline.org/member-programs/operations-technology/committee-hub/governance/), the OpenAPI specification is moved into this repository and published at [specs.dfa.irionline.org](https://specs.dfa.irionline.org), which is the published GitHub Page of this repository.
+
+## Style Guide
+
+The style guide provides rules, regulations, and recommendations for Digital-First standards.
+
+### Style Conventions
 
 Field naming
 - **Booleans**: Should be prefixed with is or has.
@@ -16,7 +27,7 @@ Query String Parameters
 - **_associatedFirmId_**: Optional query parameter for the associated firm ID
 
 Regular Expressions
-- There is no single universally adopted regex "standard," but Perl-Compatible Regular Expressions (PCRE) is the most widely supported and influential standard
+- There is no single universally adopted regex "standard," but Perl-Compatible Regular Expressions (PCRE) is the most widely supported and influential standard
 
 Response Body Standards
   - Response object body must only contain the resource or collection of resources that were requested (error responses are an exception to this rule.)
@@ -160,144 +171,4 @@ Security issues and bugs should be reported directly to Katherine Dease kdease@i
 
 ## Code of conduct
 
-See [code of conduct](https://github.com/Insured-Retirement-Institute/Style-Guide/blob/main/CODE_OF_CONDUCT.md)
-
-## Data Dictionary
-
-The Data Dictionary provides a business-friendly, per-endpoint view of all API fields across request parameters, request bodies, and response bodies. It is automatically generated from the OpenAPI specification and published to GitHub Pages.
-
-### Accessing the Data Dictionary
-
-- **Online**: Visit the [GitHub Pages site](https://insured-retirement-institute.github.io/Style-Guide/) to view the interactive data dictionary
-- **Download**: An Excel file (`data-dictionary.xlsx`) is available for download from the Pages site
-
-### Features
-
-The data dictionary includes:
-
-- **Field Instances**: Every field occurrence within each endpoint, including:
-  - Path, query, and header parameters
-  - Request body fields (flattened recursively)
-  - Response body fields per HTTP status code
-  - Field metadata: type, format, required, nullable, constraints, descriptions, examples
-
-- **Endpoints Summary**: Overview of all API operations with their parameters and response codes
-
-- **Schemas Summary**: Component schema definitions with property counts and required fields
-
-### Prerequisites
-
-- **Node.js**: Version 20.x or later
-- **npm**: Included with Node.js
-
-### Running Locally
-
-To generate the data dictionary locally:
-
-```bash
-# Install dependencies
-npm install
-
-# Generate the data dictionary (outputs to public/)
-npm run build:dictionary
-
-# Generated files:
-#   public/data-dictionary.json  - JSON data for the interactive table
-#   public/data-dictionary.xlsx  - Excel spreadsheet download
-#   public/index.html            - Interactive web UI
-```
-
-### Configuring the OpenAPI Source
-
-By default, the generator processes `docs/appstatusv2.yaml`. To use a different OpenAPI file:
-
-```bash
-# Set the OPENAPI_PATH environment variable (Linux/macOS)
-OPENAPI_PATH=docs/another-api.yaml npm run build:dictionary
-
-# On Windows (Command Prompt):
-set OPENAPI_PATH=docs\another-api.yaml && npm run build:dictionary
-
-# On Windows (PowerShell):
-$env:OPENAPI_PATH="docs\another-api.yaml"; npm run build:dictionary
-```
-
-### Output Columns (Field Instances)
-
-| Column | Description |
-|--------|-------------|
-| `operationId` | Unique operation identifier from OpenAPI |
-| `method` | HTTP method (GET, POST, PUT, PATCH, DELETE) |
-| `path` | API endpoint path |
-| `tags` | Comma-separated operation tags |
-| `summary` | Operation summary |
-| `location` | Where the field appears: `path_param`, `query_param`, `header_param`, `request_body`, `response_body` |
-| `httpStatus` | HTTP status code (for response_body only) |
-| `mediaType` | Content type (e.g., `application/json`) |
-| `schemaName` | Source schema name or `inline/anonymous` |
-| `fieldPath` | Dot-notation path with `[]` for arrays (e.g., `items[].id`) |
-| `fieldName` | Field name |
-| `type` | JSON Schema type |
-| `itemType` | Array item type (if array) |
-| `format` | JSON Schema format (date, email, etc.) |
-| `required` | Yes/No - whether field is required |
-| `nullable` | Yes/No - whether field can be null |
-| `deprecated` | Yes/No - whether field is deprecated |
-| `readOnly` | Yes/No - whether field is read-only |
-| `writeOnly` | Yes/No - whether field is write-only |
-| `description` | Field description |
-| `constraints` | Validation constraints (pattern, minLength, enum, etc.) |
-| `example` | Example value |
-| `default` | Default value |
-| `sourceRef` | Source location in OpenAPI spec |
-| `issues` | Any parsing issues or variant labels |
-
-### GitHub Actions Workflow
-
-The data dictionary is automatically rebuilt and deployed to GitHub Pages on every push to `main`. The workflow:
-
-1. Checks out the repository
-2. Installs Node.js 20.x dependencies
-3. Runs `npm run build:dictionary`
-4. Copies existing docs to public folder
-5. Deploys the `public/` directory to GitHub Pages
-
-To configure the OpenAPI path for CI, set the `OPENAPI_PATH` repository variable in GitHub Settings > Secrets and variables > Actions > Variables.
-
-### Project Structure
-
-```
-Style-Guide/
-├── .github/
-│   └── workflows/
-│       └── pages.yml          # GitHub Actions workflow
-├── docs/
-│   ├── appstatusv2.yaml       # OpenAPI specification (default)
-│   └── ...                    # Other API specs
-├── public/                    # Generated output (gitignored)
-│   ├── data-dictionary.json
-│   ├── data-dictionary.xlsx
-│   └── index.html
-├── scripts/
-│   └── generate-dictionary.ts # Generator script
-├── package.json               # Node.js dependencies
-├── tsconfig.json              # TypeScript configuration
-└── README.md
-```
-
-### Troubleshooting
-
-**Error: Cannot find module '@apidevtools/swagger-parser'**
-- Run `npm install` to install dependencies
-
-**Error: ENOENT: no such file or directory**
-- Verify the OpenAPI file path exists
-- Check the `OPENAPI_PATH` environment variable
-
-**Empty or missing fields in output**
-- The generator handles missing schemas gracefully
-- Check the `issues` column for any parsing warnings
-
-**GitHub Pages not updating**
-- Verify the workflow completed successfully in Actions tab
-- Check that Pages is configured to deploy from GitHub Actions (not from branch)
+See [code of conduct](https://github.com/Insured-Retirement-Institute/Digital-First-Specifications/blob/main/CODE_OF_CONDUCT.md)
