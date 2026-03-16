@@ -1497,6 +1497,10 @@ function generateHtml(outputPath: string): void {
     let data = null;
     let table = null;
     let currentTab = 'fields';
+    let currentManifest = [];
+    let isAllSpecs = false;
+
+    const specColumn = {title: "Specification", field: "specification", headerFilter: true, width: 220};
 
     const fieldColumns = [
       {title: "Operation ID", field: "operationId", headerFilter: true, width: 180},
@@ -1550,8 +1554,15 @@ function generateHtml(outputPath: string): void {
         if (!response.ok) throw new Error('Failed to load spec manifest');
         const manifest = await response.json();
 
+        currentManifest = manifest;
         const selector = document.getElementById('spec-selector');
         selector.innerHTML = '';
+
+        const allOption = document.createElement('option');
+        allOption.value = '__all__';
+        allOption.textContent = 'All Specifications';
+        selector.appendChild(allOption);
+
         manifest.forEach(spec => {
           const option = document.createElement('option');
           option.value = spec.key;
@@ -1562,7 +1573,7 @@ function generateHtml(outputPath: string): void {
         // Apply URL param if present
         const urlParams = new URLSearchParams(window.location.search);
         const specParam = urlParams.get('spec');
-        if (specParam && manifest.find(s => s.key === specParam)) {
+        if (specParam === '__all__' || (specParam && manifest.find(s => s.key === specParam))) {
           selector.value = specParam;
         }
 
@@ -1585,17 +1596,62 @@ function generateHtml(outputPath: string): void {
 
     async function loadData(key) {
       try {
-        const response = await fetch(\`./data-dictionary-\${key}.json\`);
-        if (!response.ok) throw new Error('Failed to load data dictionary');
-        data = await response.json();
+        if (key === '__all__') {
+          isAllSpecs = true;
+          const allFieldInstances = [];
+          const allEndpoints = [];
+          const allSchemas = [];
+          let latestDate = null;
+
+          await Promise.all(currentManifest.map(async (spec) => {
+            const response = await fetch(\`./data-dictionary-\${spec.key}.json\`);
+            if (!response.ok) return;
+            const specData = await response.json();
+            const specLabel = \`\${spec.title} v\${spec.version}\`;
+
+            if (specData.generatedAt) {
+              const d = new Date(specData.generatedAt);
+              if (!latestDate || d > latestDate) latestDate = d;
+            }
+
+            specData.fieldInstances.forEach(row => {
+              allFieldInstances.push({...row, specification: specLabel});
+            });
+            specData.endpoints.forEach(row => {
+              allEndpoints.push({...row, specification: specLabel});
+            });
+            specData.schemas.forEach(row => {
+              allSchemas.push({...row, specification: specLabel});
+            });
+          }));
+
+          data = {
+            fieldInstances: allFieldInstances,
+            endpoints: allEndpoints,
+            schemas: allSchemas,
+            generatedAt: latestDate ? latestDate.toISOString() : null
+          };
+
+          // Hide download button for "All"
+          const downloadBtn = document.querySelector('.download-btn');
+          if (downloadBtn) downloadBtn.style.display = 'none';
+        } else {
+          isAllSpecs = false;
+          const response = await fetch(\`./data-dictionary-\${key}.json\`);
+          if (!response.ok) throw new Error('Failed to load data dictionary');
+          data = await response.json();
+
+          // Show download button
+          const downloadBtn = document.querySelector('.download-btn');
+          if (downloadBtn) {
+            downloadBtn.style.display = '';
+            downloadBtn.href = \`./data-dictionary-\${key}.xlsx\`;
+          }
+        }
 
         // Update header
         document.getElementById('generated-at').textContent =
-          \`Generated: \${new Date(data.generatedAt).toLocaleString()}\`;
-
-        // Update download link
-        const downloadBtn = document.querySelector('.download-btn');
-        if (downloadBtn) downloadBtn.href = \`./data-dictionary-\${key}.xlsx\`;
+          data.generatedAt ? \`Generated: \${new Date(data.generatedAt).toLocaleString()}\` : '—';
 
         // Repopulate status filter
         const statusSelect = document.getElementById('filter-status');
@@ -1624,15 +1680,15 @@ function generateHtml(outputPath: string): void {
       switch (currentTab) {
         case 'fields':
           tableData = data.fieldInstances;
-          columns = fieldColumns;
+          columns = isAllSpecs ? [specColumn, ...fieldColumns] : fieldColumns;
           break;
         case 'endpoints':
           tableData = data.endpoints;
-          columns = endpointColumns;
+          columns = isAllSpecs ? [specColumn, ...endpointColumns] : endpointColumns;
           break;
         case 'schemas':
           tableData = data.schemas;
-          columns = schemaColumns;
+          columns = isAllSpecs ? [specColumn, ...schemaColumns] : schemaColumns;
           break;
       }
 
