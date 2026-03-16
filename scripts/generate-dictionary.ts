@@ -1221,10 +1221,20 @@ function generateHtml(outputPath: string): void {
 
     .tabulator-row:hover {
       background: var(--blue-light) !important;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+      position: relative;
+      z-index: 1;
     }
 
     .tabulator-row.tabulator-row-even {
       background: var(--gray-50) !important;
+    }
+
+    .tabulator-row.tabulator-row-even:hover {
+      background: var(--blue-light) !important;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+      position: relative;
+      z-index: 1;
     }
 
     .tabulator-row .tabulator-cell {
