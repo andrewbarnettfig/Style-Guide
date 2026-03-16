@@ -905,14 +905,15 @@ function generateHtml(outputPath: string): void {
     }
 
     .spec-selector-select {
-      background: rgba(255, 255, 255, 0.15);
+      background: rgba(255, 255, 255, 0.15) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='white'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E") no-repeat right 10px center;
+      background-size: 16px;
       border: 1px solid rgba(255, 255, 255, 0.3);
       border-radius: var(--radius-sm);
       color: var(--white);
       font-family: inherit;
       font-size: 0.9rem;
       font-weight: 600;
-      padding: 6px 12px;
+      padding: 6px 32px 6px 12px;
       cursor: pointer;
       appearance: none;
       min-width: 220px;
