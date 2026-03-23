@@ -829,7 +829,7 @@ function generateHtml(outputPath: string): void {
     }
 
     /* Header */
-    header {
+    .page-wrapper header {
       background: var(--navy);
       color: var(--white);
       padding: 48px;
@@ -838,7 +838,7 @@ function generateHtml(outputPath: string): void {
       overflow: hidden;
     }
 
-    header::before {
+    .page-wrapper header::before {
       content: '';
       position: absolute;
       top: 0;
@@ -1334,7 +1334,7 @@ function generateHtml(outputPath: string): void {
         padding: 24px;
       }
 
-      header {
+      .page-wrapper header {
         padding: 32px;
       }
 
@@ -1357,7 +1357,7 @@ function generateHtml(outputPath: string): void {
         padding: 16px;
       }
 
-      header {
+      .page-wrapper header {
         padding: 24px;
         border-radius: var(--radius-md) var(--radius-md) 0 0;
       }
